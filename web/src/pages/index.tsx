@@ -1,31 +1,14 @@
+import { mintTokensMachine } from "@/machines/mintTokensMachine";
 import { walletAuthMachine } from "@/machines/walletAuthMachine";
+import { useWalletAuthService } from "@/provider/WalletAuthProvider";
 import { Inter } from "@next/font/google";
 import * as fcl from "@onflow/fcl";
-import { useInterpret, useSelector } from "@xstate/react";
-import { Interpreter } from "xstate";
+import { useInterpret, useMachine, useSelector } from "@xstate/react";
 
 const inter = Inter({ subsets: ["latin"] });
 
-fcl.config({
-  "accessNode.api": "https://rest-testnet.onflow.org", // Mainnet: "https://rest-mainnet.onflow.org"
-  "discovery.wallet": "https://fcl-discovery.onflow.org/testnet/authn", // Mainnet: "https://fcl-discovery.onflow.org/authn"
-  "app.detail.title": "Elite Token",
-});
-
 export default function Home() {
-  const walletAuthService = useInterpret(walletAuthMachine, {
-    services: {
-      signInService: async () => {
-        const response = await fcl.logIn();
-        console.log(response);
-        if (response.addr) return response;
-        throw new Error("Erro ao login");
-      },
-      disconnectWallet: async () => {
-        await fcl.unauthenticate();
-      },
-    },
-  });
+  const { walletAuthService } = useWalletAuthService();
   const isLoggedIn = useSelector(walletAuthService, (state) => state.matches("LOGGED_IN"));
   const isLoading = useSelector(walletAuthService, (state) => state.context.loading);
   const { send } = walletAuthService;
@@ -35,12 +18,12 @@ export default function Home() {
       <main className={`${inter.className} flex flex-col  w-screen h-screen bg-black/90 justify-center items-center`}>
         <div>
           {" "}
-          <h1 className="text-4xl font-bold uppercase text-transparent bg-clip-text bg-gradient-to-tr from-yellow-400 to-yellow-600">
+          <h1 className="text-4xl font-bold text-transparent uppercase bg-clip-text bg-gradient-to-tr from-yellow-400 to-yellow-600">
             Elite Token
           </h1>
           <p className="text-white/80">A token from the Flow Blockchain</p>
         </div>
-        <div className="bg-gray-700/30 border-box w-10/12 lg:w-1/2 mt-4 xl:w-1/4 p-4 rounded-lg text-white border border-gray-400/50">
+        <div className="w-10/12 p-4 mt-4 text-white border rounded-lg bg-gray-700/30 border-box lg:w-1/2 xl:w-1/4 border-gray-400/50">
           {isLoggedIn ? (
             <>
               <MintTokensForm />
@@ -52,7 +35,7 @@ export default function Home() {
             <button
               disabled={isLoading}
               onClick={() => send("signInToWallet")}
-              className="p-2 px-4 disabled:bg-gray-900 bg-gray-400/50 rounded-lg border"
+              className="p-2 px-4 border rounded-lg disabled:bg-gray-900 bg-gray-400/50"
             >
               {isLoading ? "Loading..." : "Sign in"}
             </button>
@@ -64,15 +47,31 @@ export default function Home() {
 }
 
 const MintTokensForm = () => {
+  const [state, send] = useMachine(mintTokensMachine, {
+    services: {
+      mintTokens: async (ctx) => {
+        console.log("MINT TOKENS", ctx);
+        return true;
+      },
+    },
+  });
+
   return (
     <>
       <h2>Mint Elite Tokens:</h2>
       <input
-        className="mt-2 mb-4 w-full p-2 rounded-lg border border-gray-400/50"
+        className="w-full p-2 mt-2 mb-4 text-gray-800 border rounded-lg border-gray-400/50"
         placeholder="Amount to mint"
         type={"number"}
+        min={0.00001}
+        step={0.00001}
+        value={state.context.amountToMint}
+        onChange={(e) => send({ type: "ENTER_AMOUNT_TO_MINT", value: parseFloat(e.target.value ?? 0) })}
       />
-      <button className="p-2 px-4  bg-gray-400/50 rounded-lg border">Mint tokens</button>
+      {!!state.context.error && <p className="mb-2 text-red-300">{state.context.error.message}</p>}
+      <button className="p-2 px-4 border rounded-lg bg-gray-400/50" onClick={() => send("SUBMIT")}>
+        Mint tokens
+      </button>
     </>
   );
 };
