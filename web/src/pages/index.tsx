@@ -4,6 +4,7 @@ import { useWalletAuthService } from "@/provider/WalletAuthProvider";
 import { Inter } from "@next/font/google";
 import * as fcl from "@onflow/fcl";
 import { useInterpret, useMachine, useSelector } from "@xstate/react";
+import Image from "next/image";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -16,10 +17,11 @@ export default function Home() {
   return (
     <>
       <main className={`${inter.className} flex flex-col  w-screen h-screen bg-black/90 justify-center items-center`}>
-        <div>
+        <div className="flex flex-col items-center">
           {" "}
-          <h1 className="text-4xl font-bold text-transparent uppercase bg-clip-text bg-gradient-to-tr from-yellow-400 to-yellow-600">
-            Elite Token
+          <Image src={"/space-token.svg"} alt="Space Token" width={120} height={120} />
+          <h1 className="mt-2 text-4xl font-bold text-transparent uppercase bg-clip-text bg-gradient-to-tr from-yellow-400 to-yellow-600">
+            Space Token
           </h1>
           <p className="text-white/80">A token from the Flow Blockchain</p>
         </div>
