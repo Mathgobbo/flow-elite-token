@@ -1,3 +1,4 @@
+import { TokenDetails } from "@/components/TokenDetails";
 import { mintTokensMachine } from "@/machines/mintTokensMachine";
 import { walletAuthMachine } from "@/machines/walletAuthMachine";
 import { useWalletAuthService } from "@/provider/WalletAuthProvider";
@@ -16,15 +17,10 @@ export default function Home() {
 
   return (
     <>
-      <main className={`${inter.className} flex flex-col  w-screen h-screen bg-black/90 justify-center items-center`}>
-        <div className="flex flex-col items-center">
-          {" "}
-          <Image src={"/space-token.svg"} alt="Space Token" width={120} height={120} />
-          <h1 className="mt-2 text-4xl font-bold text-transparent uppercase bg-clip-text bg-gradient-to-tr from-yellow-400 to-yellow-600">
-            Space Token
-          </h1>
-          <p className="text-white/80">A token from the Flow Blockchain</p>
-        </div>
+      <main
+        className={`${inter.className} flex flex-col  w-full min-h-screen box-border bg-black/90 justify-center items-center`}
+      >
+        <TokenDetails />
         <div className="w-10/12 p-4 mt-4 text-white border rounded-lg bg-gray-700/30 border-box lg:w-1/2 xl:w-1/4 border-gray-400/50">
           {isLoggedIn ? (
             <>
@@ -53,6 +49,7 @@ const MintTokensForm = () => {
     services: {
       mintTokens: async (ctx) => {
         console.log("MINT TOKENS", ctx);
+        fcl.query();
         return true;
       },
     },
