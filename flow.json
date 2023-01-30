@@ -8,7 +8,7 @@
         "mainnet": "0xf233dcee88fe0abe"
       }
     },
-    "ExampleToken": "./cadence/contracts/ExampleToken.cdc",
+    "SpaceToken": "./cadence/contracts/SpaceToken.cdc",
     "FungibleTokenSwitchboard": "./cadence/contracts/FungibleTokenSwitchboard.cdc",
     "FungibleTokenMetadataViews": "./cadence/contracts/FungibleTokenMetadataViews.cdc",
     "PrivateReceiverForwarder": "./cadence/contracts/utility/PrivateReceiverForwarder.cdc",
@@ -29,17 +29,37 @@
     "emulator-account": {
       "address": "f8d6e0586b0a20c7",
       "key": "6d12eebfef9866c9b6fa92b97c6e705c26a1785b1e7944da701fc545a51d4673"
+    },
+    "testnet-account": {
+      "address": "0xc9d00db2367afc65",
+      "key": {
+        "type": "hex",
+        "index": 0,
+        "signatureAlgorithm": "ECDSA_secp256k1",
+        "hashAlgorithm": "SHA2_256",
+        "privateKey": "$PRIVATE_KEY"
+      }
     }
   },
   "deployments": {
     "emulator": {
       "emulator-account": [
         "FungibleToken",
-        "ExampleToken",
+        "SpaceToken",
         "NonFungibleToken",
         "MetadataViews",
         "FungibleTokenMetadataViews",
         "FungibleTokenSwitchboard"
+      ]
+    },
+    "testnet": {
+      "testnet-account": [
+        "FungibleToken",
+        "NonFungibleToken",
+        "MetadataViews",
+        "FungibleTokenMetadataViews",
+        "FungibleTokenSwitchboard",
+        "SpaceToken"
       ]
     }
   }

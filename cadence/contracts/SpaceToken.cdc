@@ -2,7 +2,7 @@ import FungibleToken from "./FungibleToken.cdc"
 import MetadataViews from "./utility/MetadataViews.cdc"
 import FungibleTokenMetadataViews from "./FungibleTokenMetadataViews.cdc"
 
-pub contract ExampleToken: FungibleToken {
+pub contract SpaceToken: FungibleToken {
 
     pub var totalSupply: UFix64
     
@@ -36,7 +36,7 @@ pub contract ExampleToken: FungibleToken {
         }
 
         pub fun deposit(from: @FungibleToken.Vault) {
-            let vault <- from as! @ExampleToken.Vault
+            let vault <- from as! @SpaceToken.Vault
             self.balance = self.balance + vault.balance
             emit TokensDeposited(amount: vault.balance, to: self.owner?.address)
             vault.balance = 0.0
@@ -45,11 +45,11 @@ pub contract ExampleToken: FungibleToken {
 
         destroy() {
             if self.balance > 0.0 {
-                ExampleToken.totalSupply = ExampleToken.totalSupply - self.balance
+                SpaceToken.totalSupply = SpaceToken.totalSupply - self.balance
             }
         }
 
-        /// The way of getting all the Metadata Views implemented by ExampleToken
+        /// The way of getting all the Metadata Views implemented by SpaceToken
         ///
         /// @return An array of Types defining the implemented views. This value will be used by
         ///         developers to know which parameter to pass to the resolveView() method.
@@ -60,7 +60,7 @@ pub contract ExampleToken: FungibleToken {
                     Type<FungibleTokenMetadataViews.FTVaultData>()]
         }
 
-        /// The way of getting a Metadata View out of the ExampleToken
+        /// The way of getting a Metadata View out of the SpaceToken
         ///
         /// @param view: The Type of the desired view.
         /// @return A structure representing the requested view.
@@ -75,29 +75,30 @@ pub contract ExampleToken: FungibleToken {
                 case Type<FungibleTokenMetadataViews.FTDisplay>():
                     let media = MetadataViews.Media(
                             file: MetadataViews.HTTPFile(
-                            url: "https://assets.website-files.com/5f6294c0c7a8cdd643b1c820/5f6294c0c7a8cda55cb1c936_Flow_Wordmark.svg"
+                            url: "https://https://flow-space-token.vercel.app/space-token.svg"
                         ),
                         mediaType: "image/svg+xml"
                     )
                     let medias = MetadataViews.Medias([media])
                     return FungibleTokenMetadataViews.FTDisplay(
-                        name: "Skull Token",
-                        symbol: "SKL",
+                        name: "Space Token",
+                        symbol: "SPACE",
                         description: "This fungible token is used as an example to help you develop your next FT #onFlow.",
-                        externalURL: MetadataViews.ExternalURL("https://example-ft.onflow.org"),
+                        externalURL: MetadataViews.ExternalURL("https://flow-space-token.vercel.app/"),
                         logos: medias,
+                        socials: {}
                     )
                 case Type<FungibleTokenMetadataViews.FTVaultData>():
                     return FungibleTokenMetadataViews.FTVaultData(
-                        storagePath: ExampleToken.VaultStoragePath,
-                        receiverPath: ExampleToken.ReceiverPublicPath,
-                        metadataPath: ExampleToken.VaultPublicPath,
-                        providerPath: /private/exampleTokenVault,
-                        receiverLinkedType: Type<&ExampleToken.Vault{FungibleToken.Receiver}>(),
-                        metadataLinkedType: Type<&ExampleToken.Vault{FungibleToken.Balance, MetadataViews.Resolver}>(),
-                        providerLinkedType: Type<&ExampleToken.Vault{FungibleToken.Provider}>(),
-                        createEmptyVaultFunction: (fun (): @ExampleToken.Vault {
-                            return <-ExampleToken.createEmptyVault()
+                        storagePath: SpaceToken.VaultStoragePath,
+                        receiverPath: SpaceToken.ReceiverPublicPath,
+                        metadataPath: SpaceToken.VaultPublicPath,
+                        providerPath: /private/spaceTokenVault,
+                        receiverLinkedType: Type<&SpaceToken.Vault{FungibleToken.Receiver}>(),
+                        metadataLinkedType: Type<&SpaceToken.Vault{FungibleToken.Balance, MetadataViews.Resolver}>(),
+                        providerLinkedType: Type<&SpaceToken.Vault{FungibleToken.Provider}>(),
+                        createEmptyVaultFunction: (fun (): @SpaceToken.Vault {
+                            return <-SpaceToken.createEmptyVault()
                         })
                     )
             }
@@ -123,12 +124,12 @@ pub contract ExampleToken: FungibleToken {
 
     pub resource Minter {
         pub var allowedAmount: UFix64
-        pub fun mintTokens(amount: UFix64): @ExampleToken.Vault {
+        pub fun mintTokens(amount: UFix64): @SpaceToken.Vault {
             pre {
                 amount > 0.0: "Amount minted must be greater than zero"
                 amount <= self.allowedAmount: "Amount minted must be less than the allowed amount"
             }
-            ExampleToken.totalSupply = ExampleToken.totalSupply + amount
+            SpaceToken.totalSupply = SpaceToken.totalSupply + amount
             self.allowedAmount = self.allowedAmount - amount
             emit TokensMinted(amount: amount)
             return <-create Vault(balance: amount)
@@ -141,7 +142,7 @@ pub contract ExampleToken: FungibleToken {
 
     pub resource Burner {
         pub fun burnTokens(from: @FungibleToken.Vault) {
-            let vault <- from as! @ExampleToken.Vault
+            let vault <- from as! @SpaceToken.Vault
             let amount = vault.balance
             destroy vault
             emit TokensBurned(amount: amount)
@@ -149,11 +150,11 @@ pub contract ExampleToken: FungibleToken {
     }
 
     init() {
-        self.totalSupply = 1000.0
-        self.VaultStoragePath = /storage/exampleTokenVault
-        self.AdminStoragePath = /storage/exampleTokenAdmin
-        self.VaultPublicPath = /public/exampleTokenMetadata
-        self.ReceiverPublicPath = /public/exampleTokenReceiver
+        self.totalSupply = 1000000.0
+        self.VaultStoragePath = /storage/spaceTokenVault
+        self.AdminStoragePath = /storage/spaceTokenAdmin
+        self.VaultPublicPath = /public/spaceTokenMetadata
+        self.ReceiverPublicPath = /public/spaceTokenReceiver
 
         // Create the Vault with the total supply of tokens and save it in storage.
         let vault <- create Vault(balance: self.totalSupply)
@@ -162,7 +163,7 @@ pub contract ExampleToken: FungibleToken {
             self.ReceiverPublicPath,
             target: self.VaultStoragePath
         )
-        self.account.link<&ExampleToken.Vault{FungibleToken.Balance}>(
+        self.account.link<&SpaceToken.Vault{FungibleToken.Balance}>(
             self.VaultPublicPath,
             target: self.VaultStoragePath
         )
