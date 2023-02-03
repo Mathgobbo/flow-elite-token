@@ -1,4 +1,5 @@
 import FungibleToken from "../contracts/FungibleToken.cdc"
+import FlowToken from 0x0ae53cb6e3f42a79
 import SpaceToken from "../contracts/SpaceToken.cdc"
 
 /// This transaction is what the minter Account uses to mint new tokens
@@ -13,9 +14,13 @@ transaction(recipient: Address, amount: UFix64) {
     /// Reference to the Fungible Token Receiver of the recipient
     let tokenReceiver: &{FungibleToken.Receiver}
 
+    let userFlowBalanceProvider: &FungibleToken.Vault
+
     /// The total supply of tokens before the burn
     let supplyBefore: UFix64
 
+    let minter: &SpaceToken.Minter;
+    
     prepare(signer: AuthAccount) {
         self.supplyBefore = SpaceToken.totalSupply
 
@@ -28,18 +33,31 @@ transaction(recipient: Address, amount: UFix64) {
             .getCapability(SpaceToken.ReceiverPublicPath)
             .borrow<&{FungibleToken.Receiver}>()
             ?? panic("Unable to borrow receiver reference")
+
+        self.userFlowBalanceProvider = signer.borrow<&FungibleToken.Vault>(from: /storage/flowTokenVault) ?? panic("Was not possible to borrow the FlowToken Receiver")
+
+        // Create a minter and mint tokens
+        let localMinter = signer.borrow<&SpaceToken.Minter>(from: /storage/spaceTokenMinterPath) 
+        if(localMinter == nil) {
+             let minterResource <- self.tokenAdmin.createNewMinter(allowedAmount: amount);
+            signer.save(<-minterResource, to: /storage/spaceTokenMinterPath)
+            signer.link<&SpaceToken.Minter>(/public/spaceTokenMinterPath, target: /storage/SpaceTokenMinterPath)
+            self.minter = signer.borrow<&SpaceToken.Minter>(from: /storage/spaceTokenMinterPath) ?? panic ("MINTER NOT FOUND YET")
+        }else {
+            self.minter = signer.borrow<&SpaceToken.Minter>(from: /storage/spaceTokenMinterPath) ?? panic ("MINTER NOT FOUND YET")
+        }
+
     }
 
     execute {
 
-        // Create a minter and mint tokens
-        let minter <- self.tokenAdmin.createNewMinter(allowedAmount: amount)
-        let mintedVault <- minter.mintTokens(amount: amount)
+        let paymentVault <-self.userFlowBalanceProvider.withdraw(amount: amount) 
+        
+        let mintedVault <- self.minter.publicMintTokens(amount: amount, payment: <-paymentVault)
 
         // Deposit them to the receiever
         self.tokenReceiver.deposit(from: <-mintedVault)
 
-        destroy minter
     }
 
     post {

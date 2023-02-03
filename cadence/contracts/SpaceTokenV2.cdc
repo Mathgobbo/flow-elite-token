@@ -3,7 +3,7 @@ import MetadataViews from "./utility/MetadataViews.cdc"
 import FungibleTokenMetadataViews from "./FungibleTokenMetadataViews.cdc"
 import FlowToken from 0x0ae53cb6e3f42a79
 
-pub contract SpaceToken: FungibleToken {
+pub contract SpaceTokenV2: FungibleToken {
 
     pub var totalSupply: UFix64
     
@@ -37,7 +37,7 @@ pub contract SpaceToken: FungibleToken {
         }
 
         pub fun deposit(from: @FungibleToken.Vault) {
-            let vault <- from as! @SpaceToken.Vault
+            let vault <- from as! @SpaceTokenV2.Vault
             self.balance = self.balance + vault.balance
             emit TokensDeposited(amount: vault.balance, to: self.owner?.address)
             vault.balance = 0.0
@@ -46,7 +46,7 @@ pub contract SpaceToken: FungibleToken {
 
         destroy() {
             if self.balance > 0.0 {
-                SpaceToken.totalSupply = SpaceToken.totalSupply - self.balance
+                SpaceTokenV2.totalSupply = SpaceTokenV2.totalSupply - self.balance
             }
         }
 
@@ -91,15 +91,15 @@ pub contract SpaceToken: FungibleToken {
                     )
                 case Type<FungibleTokenMetadataViews.FTVaultData>():
                     return FungibleTokenMetadataViews.FTVaultData(
-                        storagePath: SpaceToken.VaultStoragePath,
-                        receiverPath: SpaceToken.ReceiverPublicPath,
-                        metadataPath: SpaceToken.VaultPublicPath,
+                        storagePath: SpaceTokenV2.VaultStoragePath,
+                        receiverPath: SpaceTokenV2.ReceiverPublicPath,
+                        metadataPath: SpaceTokenV2.VaultPublicPath,
                         providerPath: /private/spaceTokenVault,
-                        receiverLinkedType: Type<&SpaceToken.Vault{FungibleToken.Receiver}>(),
-                        metadataLinkedType: Type<&SpaceToken.Vault{FungibleToken.Balance, MetadataViews.Resolver}>(),
-                        providerLinkedType: Type<&SpaceToken.Vault{FungibleToken.Provider}>(),
-                        createEmptyVaultFunction: (fun (): @SpaceToken.Vault {
-                            return <-SpaceToken.createEmptyVault()
+                        receiverLinkedType: Type<&SpaceTokenV2.Vault{FungibleToken.Receiver}>(),
+                        metadataLinkedType: Type<&SpaceTokenV2.Vault{FungibleToken.Balance, MetadataViews.Resolver}>(),
+                        providerLinkedType: Type<&SpaceTokenV2.Vault{FungibleToken.Provider}>(),
+                        createEmptyVaultFunction: (fun (): @SpaceTokenV2.Vault {
+                            return <-SpaceTokenV2.createEmptyVault()
                         })
                     )
             }
@@ -125,18 +125,18 @@ pub contract SpaceToken: FungibleToken {
 
     pub resource Minter {
         pub var allowedAmount: UFix64
-        access(account) fun mintTokens(amount: UFix64): @SpaceToken.Vault {
+        access(account) fun mintTokens(amount: UFix64): @SpaceTokenV2.Vault {
             pre {
                 amount > 0.0: "Amount minted must be greater than zero"
                 amount <= self.allowedAmount: "Amount minted must be less than the allowed amount"
             }
-            SpaceToken.totalSupply = SpaceToken.totalSupply + amount
+            SpaceTokenV2.totalSupply = SpaceTokenV2.totalSupply + amount
             self.allowedAmount = self.allowedAmount - amount
             emit TokensMinted(amount: amount)
             return <-create Vault(balance: amount)
         }
 
-        pub fun publicMintTokens(amount: UFix64, payment: @FungibleToken.Vault): @SpaceToken.Vault {
+        pub fun publicMintTokens(amount: UFix64, payment: @FungibleToken.Vault): @SpaceTokenV2.Vault {
             pre {
                 amount > 0.0: "Amount minted must be greater than zero"
                 amount <= self.allowedAmount: "Amount minted must be less than the allowed amount"
@@ -149,7 +149,7 @@ pub contract SpaceToken: FungibleToken {
             ?.borrow<&{FungibleToken.Receiver}>()! ?? panic("Couldnt borrow owner's Flow vault");
             ownerFlowReceiver.deposit(from: <-payment) 
 
-            SpaceToken.totalSupply = SpaceToken.totalSupply + amount
+            SpaceTokenV2.totalSupply = SpaceTokenV2.totalSupply + amount
             self.allowedAmount = self.allowedAmount - amount
             emit TokensMinted(amount: amount)
             return  <- create Vault(balance: amount)
@@ -162,7 +162,7 @@ pub contract SpaceToken: FungibleToken {
 
     pub resource Burner {
         pub fun burnTokens(from: @FungibleToken.Vault) {
-            let vault <- from as! @SpaceToken.Vault
+            let vault <- from as! @SpaceTokenV2.Vault
             let amount = vault.balance
             destroy vault
             emit TokensBurned(amount: amount)
@@ -183,7 +183,7 @@ pub contract SpaceToken: FungibleToken {
             self.ReceiverPublicPath,
             target: self.VaultStoragePath
         )
-        self.account.link<&SpaceToken.Vault{FungibleToken.Balance}>(
+        self.account.link<&SpaceTokenV2.Vault{FungibleToken.Balance}>(
             self.VaultPublicPath,
             target: self.VaultStoragePath
         )

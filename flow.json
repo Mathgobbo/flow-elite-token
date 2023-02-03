@@ -4,17 +4,18 @@
       "source": "./cadence/contracts/FungibleToken.cdc",
       "aliases": {
         "emulator": "0xee82856bf20e2aa6",
-        "testnet": "0x9a0766d93b6608b7",
-        "mainnet": "0xf233dcee88fe0abe"
+        "mainnet": "0xf233dcee88fe0abe",
+        "testnet": "0x9a0766d93b6608b7"
       }
     },
-    "SpaceToken": "./cadence/contracts/SpaceToken.cdc",
-    "FungibleTokenSwitchboard": "./cadence/contracts/FungibleTokenSwitchboard.cdc",
     "FungibleTokenMetadataViews": "./cadence/contracts/FungibleTokenMetadataViews.cdc",
-    "PrivateReceiverForwarder": "./cadence/contracts/utility/PrivateReceiverForwarder.cdc",
-    "TokenForwarding": "./cadence/contracts/utility/TokenForwarding.cdc",
+    "FungibleTokenSwitchboard": "./cadence/contracts/FungibleTokenSwitchboard.cdc",
     "MetadataViews": "./cadence/contracts/utility/MetadataViews.cdc",
-    "NonFungibleToken": "./cadence/contracts/utility/NonFungibleToken.cdc"
+    "NonFungibleToken": "./cadence/contracts/utility/NonFungibleToken.cdc",
+    "PrivateReceiverForwarder": "./cadence/contracts/utility/PrivateReceiverForwarder.cdc",
+    "SpaceToken": "./cadence/contracts/SpaceToken.cdc",
+    "SpaceTokenV2": "./cadence/contracts/SpaceTokenV2.cdc",
+    "TokenForwarding": "./cadence/contracts/utility/TokenForwarding.cdc"
   },
   "networks": {
     "emulator": "127.0.0.1:3569",
@@ -30,14 +31,18 @@
       "address": "f8d6e0586b0a20c7",
       "key": "6d12eebfef9866c9b6fa92b97c6e705c26a1785b1e7944da701fc545a51d4673"
     },
+    "patata": {
+      "address": "e03daebed8ca0615",
+      "key": "6dff72cc674ef8f33dc855f15c081a0d4d059ac81277ef6c1fc67476180ad149"
+    },
     "testnet-account": {
-      "address": "0xc9d00db2367afc65",
+      "address": "c9d00db2367afc65",
       "key": {
         "type": "hex",
         "index": 0,
         "signatureAlgorithm": "ECDSA_secp256k1",
         "hashAlgorithm": "SHA2_256",
-        "privateKey": "$PRIVATE_KEY"
+        "privateKey": "3565481065a8a0da896d36b7c0b5c197efbf330936eb65affc1a482b4a59a762"
       }
     }
   },
@@ -55,11 +60,11 @@
     "testnet": {
       "testnet-account": [
         "FungibleToken",
+        "SpaceTokenV2",
         "NonFungibleToken",
         "MetadataViews",
         "FungibleTokenMetadataViews",
-        "FungibleTokenSwitchboard",
-        "SpaceToken"
+        "FungibleTokenSwitchboard"
       ]
     }
   }
