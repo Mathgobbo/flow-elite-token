@@ -137,7 +137,7 @@ pub contract SpaceToken: FungibleToken {
         }
 
         pub fun publicMintTokens(amount: UFix64, payment: @FungibleToken.Vault): @SpaceToken.Vault {
-            pre {
+             pre {
                 amount > 0.0: "Amount minted must be greater than zero"
                 amount <= self.allowedAmount: "Amount minted must be less than the allowed amount"
                 self.owner != nil: "This resource must have an owner to execute this function"
@@ -177,6 +177,8 @@ pub contract SpaceToken: FungibleToken {
         self.ReceiverPublicPath = /public/spaceTokenReceiver
 
         // Create the Vault with the total supply of tokens and save it in storage.
+        if self.account.borrow<&SpaceToken.Vault>(from: self.VaultStoragePath) == nil {
+
         let vault <- create Vault(balance: self.totalSupply)
         self.account.save(<-vault, to: self.VaultStoragePath)
         self.account.link<&{FungibleToken.Receiver}>(
@@ -190,6 +192,7 @@ pub contract SpaceToken: FungibleToken {
 
         let admin <- create Administrator()
         self.account.save(<-admin, to: self.AdminStoragePath)
+        }
 
         // Emit an event that shows that the contract was initialized
         emit TokensInitialized(initialSupply: self.totalSupply)

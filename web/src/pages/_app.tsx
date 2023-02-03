@@ -8,6 +8,9 @@ config({
   "discovery.wallet": "https://fcl-discovery.onflow.org/testnet/authn", // Mainnet: "https://fcl-discovery.onflow.org/authn"
   "app.detail.title": "Elite Token",
   "0xSpaceToken": "0xc9d00db2367afc65",
+  "0xFungibleToken": "0x9a0766d93b6608b7",
+  "0xMetadataViews": "0xc9d00db2367afc65",
+  "0xFlowToken": "0x7e60df042a9c0868",
 });
 
 export default function App({ Component, pageProps }: AppProps) {

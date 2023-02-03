@@ -14,7 +14,6 @@
     "NonFungibleToken": "./cadence/contracts/utility/NonFungibleToken.cdc",
     "PrivateReceiverForwarder": "./cadence/contracts/utility/PrivateReceiverForwarder.cdc",
     "SpaceToken": "./cadence/contracts/SpaceToken.cdc",
-    "SpaceTokenV2": "./cadence/contracts/SpaceTokenV2.cdc",
     "TokenForwarding": "./cadence/contracts/utility/TokenForwarding.cdc"
   },
   "networks": {
@@ -50,17 +49,17 @@
     "emulator": {
       "emulator-account": [
         "FungibleToken",
-        "SpaceToken",
         "NonFungibleToken",
         "MetadataViews",
         "FungibleTokenMetadataViews",
-        "FungibleTokenSwitchboard"
+        "FungibleTokenSwitchboard",
+        "SpaceToken"
       ]
     },
     "testnet": {
       "testnet-account": [
         "FungibleToken",
-        "SpaceTokenV2",
+        "SpaceToken",
         "NonFungibleToken",
         "MetadataViews",
         "FungibleTokenMetadataViews",

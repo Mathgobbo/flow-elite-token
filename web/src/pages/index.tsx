@@ -1,11 +1,8 @@
+import { MintTokensForm } from "@/components/Home/MintTokensForm";
 import { TokenDetails } from "@/components/TokenDetails";
-import { mintTokensMachine } from "@/machines/mintTokensMachine";
-import { walletAuthMachine } from "@/machines/walletAuthMachine";
 import { useWalletAuthService } from "@/provider/WalletAuthProvider";
 import { Inter } from "@next/font/google";
-import * as fcl from "@onflow/fcl";
-import { useInterpret, useMachine, useSelector } from "@xstate/react";
-import Image from "next/image";
+import { useSelector } from "@xstate/react";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -43,34 +40,3 @@ export default function Home() {
     </>
   );
 }
-
-const MintTokensForm = () => {
-  const [state, send] = useMachine(mintTokensMachine, {
-    services: {
-      mintTokens: async (ctx) => {
-        console.log("MINT TOKENS", ctx);
-        fcl.query();
-        return true;
-      },
-    },
-  });
-
-  return (
-    <>
-      <h2>Mint Elite Tokens:</h2>
-      <input
-        className="w-full p-2 mt-2 mb-4 text-gray-800 border rounded-lg border-gray-400/50"
-        placeholder="Amount to mint"
-        type={"number"}
-        min={0.00001}
-        step={0.00001}
-        value={state.context.amountToMint}
-        onChange={(e) => send({ type: "ENTER_AMOUNT_TO_MINT", value: parseFloat(e.target.value ?? 0) })}
-      />
-      {!!state.context.error && <p className="mb-2 text-red-300">{state.context.error.message}</p>}
-      <button className="p-2 px-4 border rounded-lg bg-gray-400/50" onClick={() => send("SUBMIT")}>
-        Mint tokens
-      </button>
-    </>
-  );
-};
